@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 	"net"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -18,8 +19,9 @@ type IServer interface {
 type Server struct {
 	*gin.Engine
 
-	options  *Options
-	listener net.Listener
+	httpServer *http.Server
+	options    *Options
+	listener   net.Listener
 }
 
 func New(options *Options) (svr *Server, err error) {
@@ -30,10 +32,15 @@ func New(options *Options) (svr *Server, err error) {
 		return nil, err
 	}
 
+	httpServer := &http.Server{
+		Handler: engine,
+	}
+
 	server := &Server{
-		Engine:   engine,
-		options:  options,
-		listener: listener,
+		Engine:     engine,
+		options:    options,
+		listener:   listener,
+		httpServer: httpServer,
 	}
 
 	if options.logger != nil {
@@ -44,7 +51,7 @@ func New(options *Options) (svr *Server, err error) {
 		server.options.health.SetSystemState("server", true)
 	}
 
-	go engine.RunListener(listener)
+	go httpServer.Serve(listener)
 
 	return server, nil
 }
@@ -73,7 +80,7 @@ func (svr *Server) Close() error {
 		defer cancel()
 	}
 
-	return svr.Engine.Shutdown(ctx)
+	return svr.httpServer.Shutdown(ctx)
 }
 
 func init() {
