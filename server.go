@@ -80,6 +80,10 @@ func (svr *Server) Close() error {
 		defer cancel()
 	}
 
+	if svr.options.logger != nil {
+		svr.options.logger.Info("shutdown")
+	}
+
 	return svr.httpServer.Shutdown(ctx)
 }
 
