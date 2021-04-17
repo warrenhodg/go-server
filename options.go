@@ -3,7 +3,7 @@ package server
 import (
 	"time"
 
-	"github.com/warrenhodg/health"
+	"github.com/warrenhodg/go-health"
 	"go.uber.org/zap"
 )
 

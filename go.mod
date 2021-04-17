@@ -1,4 +1,4 @@
-module github.com/warrenhodg/server
+module github.com/warrenhodg/go-server
 
 go 1.16
 
